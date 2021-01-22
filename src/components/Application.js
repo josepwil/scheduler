@@ -10,12 +10,15 @@ import { getAppointmentsForDay, getInterview, getInterviewersForDay } from '../h
 
 
 export default function Application(props) {
+  // state
   const [state, setState] = useState({
     day: "Monday", 
     days: [], 
     appointments: {},
     interviewers: {}
   });
+
+  // getting data
   const interviewers = getInterviewersForDay(state, state.day)
   const dailyAppointments = getAppointmentsForDay(state, state.day);
   const schedule = dailyAppointments.map((appointment) => {
@@ -27,9 +30,44 @@ export default function Application(props) {
       time={appointment.time}
       interview={interview}
       interviewers={interviewers}
+      bookInterview={bookInterview} 
+      cancelInterview={cancelInterview}
       />
     )
   })
+
+    // helper functions
+    function bookInterview(id, interview) {
+      const appointment = {
+        ...state.appointments[id],
+        interview: { ...interview }
+      };
+      const appointments = {
+        ...state.appointments,
+        [id]: appointment
+      };
+      return axios.put(`/api/appointments/${id}`, { interview })
+      .then(res => {
+        setState({...state, appointments})
+      })
+    }
+  
+    function cancelInterview(id, interview) {
+      const appointment = {
+        ...state.appointments[id],
+        interview: null
+      }
+      const appointments = {
+        ...state.appointments,
+        [id]: appointment
+      }
+      return axios.delete(`/api/appointments/${id}`, { interview })
+      .then(res => {
+        setState({...state, appointments})
+      })
+    }
+
+
 
   const setDay = day => setState({ ...state, day });
 
