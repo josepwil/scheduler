@@ -5,6 +5,7 @@ const useApplicationData = function() {
   const SET_DAY = "SET_DAY";
   const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
   const SET_INTERVIEW = "SET_INTERVIEW";
+  const UPDATE_SPOTS = "UPDATE_SPOTS"
 
   const [state, dispatch] = useReducer(reducer, {
     day: "Monday", 
@@ -22,6 +23,9 @@ const useApplicationData = function() {
         return { ...state, ...action.value}
       case SET_INTERVIEW: {
         return {...state, ...action.value}
+      }
+      case UPDATE_SPOTS: {
+        return {...state, days:action.value}
       }
       default:
         throw new Error(
@@ -49,24 +53,15 @@ const useApplicationData = function() {
   const setDay = day => dispatch({ type: SET_DAY, value:day });
 
   // helper functions
-  function getSpots(state, id) {
+  function getSpots(state, id, update) {
     const daysCopy = [...state.days]
     const theDay = daysCopy.filter((day) => {
       return day.appointments.includes(id);
     })
-    return theDay[0]
-  }
-
-
-  // set interview
-  function bookInterview(id, interview) {
-    const dayData = getSpots(state, id)
-    let spotsRemaining = dayData.spots;
-    const dayId = dayData.id
-
-    if(!state.appointments[id].interview) {
-      spotsRemaining--;
-    }
+    let spotsRemaining = theDay[0].spots;
+    const dayId = theDay[0].id
+    
+    update ? spotsRemaining-- : spotsRemaining++
 
     const day = {
       ...state.days[dayId - 1],
@@ -75,6 +70,18 @@ const useApplicationData = function() {
 
     const days = [...state.days]
     days.splice(dayId - 1, 1, day)
+
+    return dispatch({ type: SET_INTERVIEW, value: { 
+      days}}
+    )
+  }
+
+
+  // set interview
+  function bookInterview(id, interview) {
+   if (!state.appointments[id].interview) {
+     getSpots(state, id, true)
+   } 
     
     const appointment = {
       ...state.appointments[id],
@@ -87,23 +94,15 @@ const useApplicationData = function() {
     return axios.put(`/api/appointments/${id}`, { interview })
     .then(res => {
       return dispatch({ type: SET_INTERVIEW, value: { 
-        appointments, days }}
+        appointments}}
       )
     })
   }
 
   // set interview 
   function cancelInterview(id, interview) {
-    const dayData = getSpots(state, id)
-    const spotsRemaining = dayData.spots + 1
-    const dayId = dayData.id
-    const day = {
-      ...state.days[dayId - 1],
-      spots: spotsRemaining
-    }
-    const days = [...state.days]
-    days.splice(dayId - 1, 1, day)
-
+    getSpots(state, id, false)
+ 
     const appointment = {
       ...state.appointments[id],
       interview: null
@@ -115,7 +114,7 @@ const useApplicationData = function() {
     return axios.delete(`/api/appointments/${id}`, { interview })
     .then(res => {
       return dispatch({ type: SET_INTERVIEW, value: { 
-        appointments, days }}
+        appointments}}
       )
     })
   }
