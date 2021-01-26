@@ -7,21 +7,18 @@ const useApplicationData = function() {
   const SET_INTERVIEW = "SET_INTERVIEW";
   const UPDATE_SPOTS = "UPDATE_SPOTS"
   const UPDATE_INTERVIEW = "UPDATE_INTERVIEW"
-
-  const [state, dispatch] = useReducer(reducer, {
-    day: "Monday", 
-    days: [], 
-    appointments: {},
-    interviewers: {}
-  });
-
   
   function reducer(state, action) {
     switch (action.type) {
       case SET_DAY:
         return { ...state, day:action.value }
       case SET_APPLICATION_DATA:
-        return { ...state, ...action.value}
+        return {
+           ...state,
+          days: action.days,
+          appointments: action.appointments,
+          interviewers: action.interviewers
+    }
       case SET_INTERVIEW: {
         return {...state, ...action.value}
       }
@@ -30,12 +27,14 @@ const useApplicationData = function() {
       }
       case UPDATE_INTERVIEW: {
         const interview = action.value.interview
+        const id = action.value.id
+      
         return {
           ...state, 
           appointments: {
             ...state.appointments, 
-            [action.value.id]: {
-              ...state.appointments[action.value.id],
+            [id]: {
+              ...state.appointments[id],
               interview
             }
           }
@@ -48,22 +47,30 @@ const useApplicationData = function() {
     }
   }
 
+  const [state, dispatch] = useReducer(reducer, {
+    day: "Monday", 
+    days: [], 
+    appointments: {},
+    interviewers: {}
+  });
+
+
   // set application data 
   useEffect(() => {
     Promise.all([
       axios.get('/api/days'),
       axios.get('/api/appointments'),
-      axios.get('api/interviewers')
+      axios.get('/api/interviewers')
     ])
       .then(all => {
-        dispatch({ type: SET_APPLICATION_DATA, value: {
+        dispatch({ 
+          type: SET_APPLICATION_DATA, 
           days: all[0].data, 
           appointments: all[1].data,
           interviewers: all[2].data
-        } });
+        });
       })
-
-
+  
   const webSocket = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL)
 
   webSocket.onmessage = (event) => {
@@ -148,7 +155,7 @@ const useApplicationData = function() {
   }
   
 
-  return {state, setDay, bookInterview, cancelInterview}
+  return { state, setDay, bookInterview, cancelInterview }
 }
 
 

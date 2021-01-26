@@ -10,7 +10,7 @@ import useApplicationData from '../hooks/useApplicationData'
 
 
 
-export default function Application(props) {
+export default function Application() {
   // state
   const {
     state,
@@ -21,10 +21,9 @@ export default function Application(props) {
 
 
   // getting data
-  const interviewers = getInterviewersForDay(state, state.day)
   const dailyAppointments = getAppointmentsForDay(state, state.day);
+  const interviewers = getInterviewersForDay(state, state.day)
   const schedule = dailyAppointments.map((appointment) => {
-    console.log('~~~~appointment', appointment)
     const interview = getInterview(state, appointment.interview)
     return (
       <Appointment 
