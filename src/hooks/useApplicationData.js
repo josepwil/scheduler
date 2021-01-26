@@ -6,6 +6,7 @@ const useApplicationData = function() {
   const SET_APPLICATION_DATA = "SET_APPLICATION_DATA";
   const SET_INTERVIEW = "SET_INTERVIEW";
   const UPDATE_SPOTS = "UPDATE_SPOTS"
+  const UPDATE_INTERVIEW = "UPDATE_INTERVIEW"
 
   const [state, dispatch] = useReducer(reducer, {
     day: "Monday", 
@@ -25,7 +26,20 @@ const useApplicationData = function() {
         return {...state, ...action.value}
       }
       case UPDATE_SPOTS: {
-        return {...state, days:action.value}
+        return {...state, ...action.value}
+      }
+      case UPDATE_INTERVIEW: {
+        const interview = action.value.interview
+        return {
+          ...state, 
+          appointments: {
+            ...state.appointments, 
+            [action.value.id]: {
+              ...state.appointments[action.value.id],
+              interview
+            }
+          }
+        }
       }
       default:
         throw new Error(
@@ -48,12 +62,26 @@ const useApplicationData = function() {
           interviewers: all[2].data
         } });
       })
+
+
+  const webSocket = new WebSocket(process.env.REACT_APP_WEBSOCKET_URL)
+
+  webSocket.onmessage = (event) => {
+    const message = JSON.parse(event.data)
+    if (message.type === "SET_INTERVIEW") {
+      dispatch({type: UPDATE_INTERVIEW, value: message })
+    }
+  }
+  return () => {
+    webSocket.close();
+  }
+
   }, [])
 
   const setDay = day => dispatch({ type: SET_DAY, value:day });
 
   // helper functions
-  function getSpots(state, id, update) {
+  function updateSpots(id, update) {
     const daysCopy = [...state.days]
     const theDay = daysCopy.filter((day) => {
       return day.appointments.includes(id);
@@ -71,7 +99,7 @@ const useApplicationData = function() {
     const days = [...state.days]
     days.splice(dayId - 1, 1, day)
 
-    return dispatch({ type: SET_INTERVIEW, value: { 
+    return dispatch({ type: UPDATE_SPOTS, value: { 
       days}}
     )
   }
@@ -80,7 +108,7 @@ const useApplicationData = function() {
   // set interview
   function bookInterview(id, interview) {
    if (!state.appointments[id].interview) {
-     getSpots(state, id, true)
+     updateSpots(id, true)
    } 
     
     const appointment = {
@@ -101,7 +129,7 @@ const useApplicationData = function() {
 
   // set interview 
   function cancelInterview(id, interview) {
-    getSpots(state, id, false)
+    updateSpots(id, false)
  
     const appointment = {
       ...state.appointments[id],
