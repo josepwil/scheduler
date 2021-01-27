@@ -141,8 +141,10 @@ describe("Application", () => {
     fireEvent.change(getByPlaceholderText(appointment, "Enter Student Name"), {
       target: {value: "Lydia Miller-Jones" }
     })
+    fireEvent.click(getByAltText(appointment, "Sylvia Palmer"))
     // 6. try and save 
     fireEvent.click(getByText(appointment, "Save"))
+
     // 7. check saving screen shows
     expect(getByText(appointment, 'Saving')).toBeInTheDocument();
     // 7. check error is shown'
