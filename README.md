@@ -4,6 +4,17 @@ Interview Scheduler is a Single Page Application built using ReactJS. It leverag
 
 Tech Stack: ReactJS, PostgreSQL, Webpack, Axios, WebSockets, Jest, React Testing Library, Storybook, Cypress
 
+## Final Product
+
+Booking a new interview:
+!["Booking Interview"](https://github.com/josepwil/scheduler/blob/master/docs/booking.gif?raw=true)
+
+Editing an existing interview:
+!["Editing Interview"](https://github.com/josepwil/scheduler/blob/master/docs/editing.gif?raw=true)
+
+Deleting an existing interview (note the schedule is updated for another user in real time):
+!["Deleting Interview"](https://github.com/josepwil/scheduler/blob/master/docs/deleting.gif?raw=true)
+
 ## Setup
 
 Install dependencies with `npm install`.
