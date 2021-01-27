@@ -65,11 +65,9 @@ const useApplicationData = function() {
 
   // set interview 
   function cancelInterview(id, interview) {
-    console.log(interview);
     // updateSpots(id, false)
     return axios.delete(`/api/appointments/${id}`, { interview })
     .then(res => {
-      interview = null;
       return dispatch({ type: SET_INTERVIEW, value: { 
         id, interview}}
       )
