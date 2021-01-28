@@ -5,6 +5,7 @@ Interview Scheduler is a Single Page Application built using ReactJS. It leverag
 Tech Stack: ReactJS, PostgreSQL, Webpack, Axios, WebSockets, Jest, React Testing Library, Storybook, Cypress
 
 Project is live [here](https://priceless-meitner-de0ef2.netlify.app)
+(It may take a few moments for the appointments to load in as Heroku warms up)
 
 ## Final Product
 
